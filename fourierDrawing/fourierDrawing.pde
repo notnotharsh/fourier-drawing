@@ -1,6 +1,5 @@
 import org.apache.commons.math3.complex.*;
 import org.apache.commons.math3.transform.*;
-import java.io.*;
 
 boolean isDown;
 boolean never;
@@ -19,6 +18,7 @@ double[] mxs;
 double[] mys;
 double[] pxs;
 double[] pys;
+PrintWriter sw;
 float time;
 float[] xpoints;
 float[] ypoints;
@@ -37,6 +37,7 @@ void setup() {
   ys = new ArrayList<Integer>();
   totalDistance = 0;
   transformer = new FastFourierTransformer(DftNormalization.STANDARD);
+  sw = createWriter("formula.txt");
   time = 0;
   currentLastX = new ArrayList<Float>();
   currentLastY = new ArrayList<Float>();
@@ -122,7 +123,9 @@ void mousePressed() {
   } else {
     never = false;
     isDown = false;
-    println(splitDrawing() + "\n");
+    sw.println(splitDrawing());
+    sw.flush();
+    sw.close();
   }
 }
 
