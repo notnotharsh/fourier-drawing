@@ -67,6 +67,7 @@ void draw() {
               xpoints[i] = xpoints[i - 1] + (float) mxs[index] / 2 * cos((float) (index * time - pxs[index]));
               ypoints[i] = ypoints[i - 1] + (float) mxs[index] / 2 * sin((float) (index * time - pxs[index]));
               if (index > 0) {
+                stroke(120);
                 line(xpoints[i - 1], ypoints[i - 1], xpoints[i], ypoints[i]);
                 ellipse(xpoints[i - 1], ypoints[i - 1], (float) mxs[index], (float) mxs[index]);
               }
@@ -75,6 +76,7 @@ void draw() {
             xpoints[i] = xpoints[i - 1] + (float) mxs[index] / 2 * cos((float) (index * time - pxs[index]));
             ypoints[i] = ypoints[i - 1] + (float) mxs[index] / -2 * sin((float) (index * time - pxs[index]));
             if (index > 0) {
+              stroke(120);
               line(xpoints[i - 1], ypoints[i - 1], xpoints[i], ypoints[i]);
               ellipse(xpoints[i - 1], ypoints[i - 1], (float) mxs[index], (float) mxs[index]);
             }
@@ -84,6 +86,7 @@ void draw() {
             xpoints[i] = xpoints[i - 1] + (float) mys[index] / 2 * sin((float) (index * time - pys[index]));
             ypoints[i] = ypoints[i - 1] + (float) mys[index] / 2 * cos((float) (index * time - pys[index]));
             if (index > 0) {
+              stroke(120);
               line(xpoints[i - 1], ypoints[i - 1], xpoints[i], ypoints[i]);
               ellipse(xpoints[i - 1], ypoints[i - 1], (float) mys[index], (float) mys[index]);
             }
@@ -91,6 +94,7 @@ void draw() {
             xpoints[i] = xpoints[i - 1] + (float) mys[index] / -2 * sin((float) (index * time - pys[index]));
             ypoints[i] = ypoints[i - 1] + (float) mys[index] / 2 * cos((float) (index * time - pys[index]));
             if (index > 0) {
+              stroke(120);
               line(xpoints[i - 1], ypoints[i - 1], xpoints[i], ypoints[i]);
               ellipse(xpoints[i - 1], ypoints[i - 1], (float) mys[index], (float) mys[index]);
             }
@@ -100,6 +104,7 @@ void draw() {
       currentLastX.add(xpoints[xpoints.length - 1]);
       currentLastY.add(ypoints[ypoints.length - 1]);
       for (int i = 0; i < currentLastX.size() - 1; i++) {
+        stroke(240);
         line(currentLastX.get(i), currentLastY.get(i), currentLastX.get(i + 1), currentLastY.get(i + 1));
       }
       time += PI / 60;
