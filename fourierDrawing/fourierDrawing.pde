@@ -68,7 +68,7 @@ void draw() {
               ypoints[i] = ypoints[i - 1] + (float) mxs[index] / 2 * sin((float) (index * time - pxs[index]));
               if (index > 0) {
                 line(xpoints[i - 1], ypoints[i - 1], xpoints[i], ypoints[i]);
-                ellipse(xpoints[i - 1], ypoints[i - 1], (float) mxs[index] / 2, (float) mxs[index] / 2);
+                ellipse(xpoints[i - 1], ypoints[i - 1], (float) mxs[index], (float) mxs[index]);
               }
             }
           } else {
@@ -76,7 +76,7 @@ void draw() {
             ypoints[i] = ypoints[i - 1] + (float) mxs[index] / -2 * sin((float) (index * time - pxs[index]));
             if (index > 0) {
               line(xpoints[i - 1], ypoints[i - 1], xpoints[i], ypoints[i]);
-              ellipse(xpoints[i - 1], ypoints[i - 1], (float) mxs[index] / 2, (float) mxs[index] / 2);
+              ellipse(xpoints[i - 1], ypoints[i - 1], (float) mxs[index], (float) mxs[index]);
             }
           }
         } else {
@@ -85,14 +85,14 @@ void draw() {
             ypoints[i] = ypoints[i - 1] + (float) mys[index] / 2 * cos((float) (index * time - pys[index]));
             if (index > 0) {
               line(xpoints[i - 1], ypoints[i - 1], xpoints[i], ypoints[i]);
-              ellipse(xpoints[i - 1], ypoints[i - 1], (float) mys[index] / 2, (float) mys[index] / 2);
+              ellipse(xpoints[i - 1], ypoints[i - 1], (float) mys[index], (float) mys[index]);
             }
           } else {
             xpoints[i] = xpoints[i - 1] + (float) mys[index] / -2 * sin((float) (index * time - pys[index]));
             ypoints[i] = ypoints[i - 1] + (float) mys[index] / 2 * cos((float) (index * time - pys[index]));
             if (index > 0) {
               line(xpoints[i - 1], ypoints[i - 1], xpoints[i], ypoints[i]);
-              ellipse(xpoints[i - 1], ypoints[i - 1], (float) mys[index] / 2, (float) mys[index] / 2);
+              ellipse(xpoints[i - 1], ypoints[i - 1], (float) mys[index], (float) mys[index]);
             }
           }
         }
