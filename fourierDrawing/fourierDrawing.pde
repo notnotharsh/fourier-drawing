@@ -38,7 +38,7 @@ void setup() {
   ys = new ArrayList<Integer>();
   totalDistance = 0;
   transformer = new FastFourierTransformer(DftNormalization.STANDARD);
-  writeFormula = false;
+  writeFormula = true;
   sw = createWriter("formula.txt");
   time = 2 * PI;
   currentLastX = new ArrayList<Float>();
@@ -56,31 +56,28 @@ void draw() {
     clear();
     for (int i = 0; i < 2 * size; i++) {
       int index = i / 4;
-      if (i % 4 < 2) {
-        if (i % 4 == 0) {
-          if (i == 0) {
-            xpoints[i] = width / 2 + (float) mxs[index] / 2 * cos((float) (index * time - pxs[index]));
-            ypoints[i] = height / 2 + (float) mxs[index] / 2 * sin((float) (index * time - pxs[index]));
-          } else {
-            xpoints[i] = xpoints[i - 1] + (float) mxs[index] / 2 * cos((float) (index * time - pxs[index]));
-            ypoints[i] = ypoints[i - 1] + (float) mxs[index] / 2 * sin((float) (index * time - pxs[index]));
-            if (index > 0) {
-              stroke(120);
-              line(xpoints[i - 1], ypoints[i - 1], xpoints[i], ypoints[i]);
-              ellipse(xpoints[i - 1], ypoints[i - 1], (float) mxs[index], (float) mxs[index]);
-            }
-          }
+      if (i % 4 == 0) {
+        if (i == 0) {
+          xpoints[i] = width / 2 + (float) mxs[index] / 2 * cos((float) (index * time - pxs[index]));
+          ypoints[i] = height / 2 + (float) mxs[index] / 2 * sin((float) (index * time - pxs[index]));
         } else {
           xpoints[i] = xpoints[i - 1] + (float) mxs[index] / 2 * cos((float) (index * time - pxs[index]));
-          ypoints[i] = ypoints[i - 1] + (float) mxs[index] / -2 * sin((float) (index * time - pxs[index]));
+          ypoints[i] = ypoints[i - 1] + (float) mxs[index] / 2 * sin((float) (index * time - pxs[index]));
           if (index > 0) {
             stroke(120);
             line(xpoints[i - 1], ypoints[i - 1], xpoints[i], ypoints[i]);
             ellipse(xpoints[i - 1], ypoints[i - 1], (float) mxs[index], (float) mxs[index]);
           }
         }
-      } else {
-        if (i % 4 == 2) {         
+      } else if (i % 4 == 1) {
+        xpoints[i] = xpoints[i - 1] + (float) mxs[index] / 2 * cos((float) (index * time - pxs[index]));
+        ypoints[i] = ypoints[i - 1] + (float) mxs[index] / -2 * sin((float) (index * time - pxs[index]));
+        if (index > 0) {
+          stroke(120);
+          line(xpoints[i - 1], ypoints[i - 1], xpoints[i], ypoints[i]);
+          ellipse(xpoints[i - 1], ypoints[i - 1], (float) mxs[index], (float) mxs[index]);
+        }
+      } else if (i % 4 == 2) {         
           xpoints[i] = xpoints[i - 1] + (float) mys[index] / 2 * sin((float) (index * time - pys[index]));
           ypoints[i] = ypoints[i - 1] + (float) mys[index] / 2 * cos((float) (index * time - pys[index]));
           if (index > 0) {
@@ -88,14 +85,13 @@ void draw() {
             line(xpoints[i - 1], ypoints[i - 1], xpoints[i], ypoints[i]);
             ellipse(xpoints[i - 1], ypoints[i - 1], (float) mys[index], (float) mys[index]);
           }
-        } else {
-          xpoints[i] = xpoints[i - 1] + (float) mys[index] / -2 * sin((float) (index * time - pys[index]));
-          ypoints[i] = ypoints[i - 1] + (float) mys[index] / 2 * cos((float) (index * time - pys[index]));
-          if (index > 0) {
-            stroke(120);
-            line(xpoints[i - 1], ypoints[i - 1], xpoints[i], ypoints[i]);
-            ellipse(xpoints[i - 1], ypoints[i - 1], (float) mys[index], (float) mys[index]);
-          }
+      } else {
+        xpoints[i] = xpoints[i - 1] + (float) mys[index] / -2 * sin((float) (index * time - pys[index]));
+        ypoints[i] = ypoints[i - 1] + (float) mys[index] / 2 * cos((float) (index * time - pys[index]));
+        if (index > 0) {
+          stroke(120);
+          line(xpoints[i - 1], ypoints[i - 1], xpoints[i], ypoints[i]);
+          ellipse(xpoints[i - 1], ypoints[i - 1], (float) mys[index], (float) mys[index]);
         }
       }
     }
