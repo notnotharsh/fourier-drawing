@@ -1,36 +1,21 @@
 import org.apache.commons.math3.complex.*;
 import org.apache.commons.math3.transform.*;
 
-boolean isDown;
-boolean never;
-boolean circles;
-ArrayList<Integer> xs;
-ArrayList<Integer> ys;
-float size;
-float totalDistance;
-float averageDistance;
-double[] xsa;
-double[] ysa;
+boolean isDown, never, circles, writeFormula;
+float size, totalDistance, averageDistance, maxTime, time;
+float[] xpoints, ypoints;
+double[] xsa, ysa, mxs, mys, pxs, pys;
+Complex[] fxs, fys;
 FastFourierTransformer transformer;
-Complex[] fxs;
-Complex[] fys;
-double[] mxs;
-double[] mys;
-double[] pxs;
-double[] pys;
-boolean writeFormula;
+ArrayList<Integer> xs, ys;
+ArrayList<Float> currentLastX, currentLastY;
 PrintWriter sw;
-float time;
-float[] xpoints;
-float[] ypoints;
-ArrayList<Float> currentLastX;
-ArrayList<Float> currentLastY;
 
 void setup() {
   noFill();
   size(1366, 768);
   background(240, 240, 240);
-  frameRate(60);
+  frameRate(60); // change this to adjust frame rate WHILE YOU ARE DRAWING
   isDown = false;
   never = true;
   circles = false;
@@ -38,9 +23,10 @@ void setup() {
   ys = new ArrayList<Integer>();
   totalDistance = 0;
   transformer = new FastFourierTransformer(DftNormalization.STANDARD);
-  writeFormula = true;
+  writeFormula = false; //change this to true if you want to have the parametric formula for what you frew in the the formula.txt file
   sw = createWriter("formula.txt");
-  time = 2 * PI;
+  maxTime = 180; // change this to adjust level of detail of CIRCLES DRAWING
+  time = 2 * maxTime;
   currentLastX = new ArrayList<Float>();
   currentLastY = new ArrayList<Float>();
 }
@@ -53,55 +39,7 @@ void draw() {
     xs.add(mouseX - width / 2);
     ys.add(mouseY - height / 2);
   } else if (circles) {
-    clear();
-    for (int i = 0; i < 2 * size; i++) {
-      int index = i / 4;
-      if (i % 4 == 0) {
-        if (i == 0) {
-          xpoints[i] = width / 2 + (float) mxs[index] / 2 * cos((float) (index * time - pxs[index]));
-          ypoints[i] = height / 2 + (float) mxs[index] / 2 * sin((float) (index * time - pxs[index]));
-        } else {
-          xpoints[i] = xpoints[i - 1] + (float) mxs[index] / 2 * cos((float) (index * time - pxs[index]));
-          ypoints[i] = ypoints[i - 1] + (float) mxs[index] / 2 * sin((float) (index * time - pxs[index]));
-          if (index > 0) {
-            stroke(120);
-            line(xpoints[i - 1], ypoints[i - 1], xpoints[i], ypoints[i]);
-            ellipse(xpoints[i - 1], ypoints[i - 1], (float) mxs[index], (float) mxs[index]);
-          }
-        }
-      } else if (i % 4 == 1) {
-        xpoints[i] = xpoints[i - 1] + (float) mxs[index] / 2 * cos((float) (index * time - pxs[index]));
-        ypoints[i] = ypoints[i - 1] + (float) mxs[index] / -2 * sin((float) (index * time - pxs[index]));
-        if (index > 0) {
-          stroke(120);
-          line(xpoints[i - 1], ypoints[i - 1], xpoints[i], ypoints[i]);
-          ellipse(xpoints[i - 1], ypoints[i - 1], (float) mxs[index], (float) mxs[index]);
-        }
-      } else if (i % 4 == 2) {         
-          xpoints[i] = xpoints[i - 1] + (float) mys[index] / 2 * sin((float) (index * time - pys[index]));
-          ypoints[i] = ypoints[i - 1] + (float) mys[index] / 2 * cos((float) (index * time - pys[index]));
-          if (index > 0) {
-            stroke(120);
-            line(xpoints[i - 1], ypoints[i - 1], xpoints[i], ypoints[i]);
-            ellipse(xpoints[i - 1], ypoints[i - 1], (float) mys[index], (float) mys[index]);
-          }
-      } else {
-        xpoints[i] = xpoints[i - 1] + (float) mys[index] / -2 * sin((float) (index * time - pys[index]));
-        ypoints[i] = ypoints[i - 1] + (float) mys[index] / 2 * cos((float) (index * time - pys[index]));
-        if (index > 0) {
-          stroke(120);
-          line(xpoints[i - 1], ypoints[i - 1], xpoints[i], ypoints[i]);
-          ellipse(xpoints[i - 1], ypoints[i - 1], (float) mys[index], (float) mys[index]);
-        }
-      }
-    }
-    currentLastX.add(xpoints[xpoints.length - 1]);
-    currentLastY.add(ypoints[ypoints.length - 1]);
-    for (int i = 0; i < currentLastX.size() - 1; i++) {
-      stroke(240);
-      line(currentLastX.get(i), currentLastY.get(i), currentLastX.get(i + 1), currentLastY.get(i + 1));
-    }
-    time -= PI / 180;
+    drawCircles();
   }
 }
 
@@ -111,6 +49,7 @@ void mousePressed() {
       isDown = true;
     } else {
       circles = true;
+      frameRate(60); // change this to adjust frame rate WHILE CIRCLES ARE DRAWING (this is the speed at which circles draw, NOT the level of detail)
     }
   } else {
     never = false;
@@ -162,8 +101,13 @@ String splitDrawing() {
   double maxx = 0;
   double maxy = 0;
   for (int i = 0; i < size / 2; i++) {
-    mxs[i] = fxs[i].abs() / size;
-    mys[i] = fys[i].abs() / size;
+    if (i == 0) {
+      mxs[i] = fxs[i].abs() / size;
+      mys[i] = fys[i].abs() / size;
+    } else {
+      mxs[i] = 2 * fxs[i].abs() / size;
+      mys[i] = 2 * fys[i].abs() / size;
+    }
     maxx = Math.max(mxs[i], maxx);
     maxy = Math.max(mys[i], maxy);
     pxs[i] = mxs[i] < 1e-4 ? 0 : atan2((float) fxs[i].getImaginary(), (float) fxs[i].getReal());
@@ -178,23 +122,75 @@ String splitDrawing() {
     }
   }
   if (writeFormula) {
-    String formula = "";
+    String formula = "Copy and paste the following into a graphing calculator such as Desmos:\n";
     formula += "(";
-    for (int i = 0; i < size / 2; i++) {
+    for (int i = 1; i < size / 2; i++) {
       if (mxs[i] != 0) {
-        formula += mxs[i] + "cos(" + i + "t - " + pxs[i] + ") + ";
+        formula += mxs[i] / 100 + "cos(" + i + "t - " + pxs[i] + ") + ";
       }
     }
     formula += "0, -(";
-    for (int i = 0; i < size / 2; i++) {
+    for (int i = 1; i < size / 2; i++) {
       if (mys[i] != 0) {
-        formula += mys[i] + "cos(" + i + "t - " + pys[i] + ") + ";
+        formula += mys[i] / 100 + "cos(" + i + "t - " + pys[i] + ") + ";
       }
     }
     formula += "0))";
     return formula;
   } else {
-    return "This is the text file that will be overwritten with the formula for the drawing every time the program runs. The formula is in the form (x(t), y(t)) and is the kind of thing you can copy/paste into Desmos or some other graphing calculator (make sure the bounds are at least 2pi apart else you won't get the full graph of the drawing).";
+    return "This is the text file that will be overwritten with the formula for the drawing every time * PI / maxTime the program runs. The formula is in the form (x(t), y(t)) and is the kind of thing you can copy/paste into Desmos or some other graphing calculator (make sure the bounds for t are at least 2pi apart else you won't get the full graph of the drawing).";
   }
   
+}
+
+void drawCircles() {
+  clear();
+  for (int i = 0; i < 2 * size; i++) {
+    int index = i / 4;
+    if (i % 4 == 0) {
+      if (i == 0) {
+        xpoints[i] = width / 2 + (float) mxs[index] / 2 * cos((float) (index * time * PI / maxTime - pxs[index]));
+        ypoints[i] = height / 2 + (float) mxs[index] / 2 * sin((float) (index * time * PI / maxTime - pxs[index]));
+      } else {
+        xpoints[i] = xpoints[i - 1] + (float) mxs[index] / 2 * cos((float) (index * time * PI / maxTime - pxs[index]));
+        ypoints[i] = ypoints[i - 1] + (float) mxs[index] / 2 * sin((float) (index * time * PI / maxTime - pxs[index]));
+        if (index > 0) {
+          stroke(120);
+          line(xpoints[i - 1], ypoints[i - 1], xpoints[i], ypoints[i]);
+          ellipse(xpoints[i - 1], ypoints[i - 1], (float) mxs[index], (float) mxs[index]);
+        }
+      }
+    } else if (i % 4 == 1) {
+      xpoints[i] = xpoints[i - 1] + (float) mxs[index] / 2 * cos((float) (index * time * PI / maxTime - pxs[index]));
+      ypoints[i] = ypoints[i - 1] + (float) mxs[index] / -2 * sin((float) (index * time * PI / maxTime - pxs[index]));
+      if (index > 0) {
+        stroke(120);
+        line(xpoints[i - 1], ypoints[i - 1], xpoints[i], ypoints[i]);
+        ellipse(xpoints[i - 1], ypoints[i - 1], (float) mxs[index], (float) mxs[index]);
+      }
+    } else if (i % 4 == 2) {         
+        xpoints[i] = xpoints[i - 1] + (float) mys[index] / 2 * sin((float) (index * time * PI / maxTime - pys[index]));
+        ypoints[i] = ypoints[i - 1] + (float) mys[index] / 2 * cos((float) (index * time * PI / maxTime - pys[index]));
+        if (index > 0) {
+          stroke(120);
+          line(xpoints[i - 1], ypoints[i - 1], xpoints[i], ypoints[i]);
+          ellipse(xpoints[i - 1], ypoints[i - 1], (float) mys[index], (float) mys[index]);
+        }
+    } else {
+      xpoints[i] = xpoints[i - 1] + (float) mys[index] / -2 * sin((float) (index * time * PI / maxTime - pys[index]));
+      ypoints[i] = ypoints[i - 1] + (float) mys[index] / 2 * cos((float) (index * time * PI / maxTime - pys[index]));
+      if (index > 0) {
+        stroke(120);
+        line(xpoints[i - 1], ypoints[i - 1], xpoints[i], ypoints[i]);
+        ellipse(xpoints[i - 1], ypoints[i - 1], (float) mys[index], (float) mys[index]);
+      }
+    }
+  }
+  currentLastX.add(xpoints[xpoints.length - 1]);
+  currentLastY.add(ypoints[ypoints.length - 1]);
+  for (int i = 0; i < min(currentLastX.size() - 1, maxTime * 2); i++) {
+    stroke(240);
+    line(currentLastX.get(i), currentLastY.get(i), currentLastX.get(i + 1), currentLastY.get(i + 1));
+  }
+  time--;
 }
