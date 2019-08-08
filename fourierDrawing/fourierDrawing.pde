@@ -1,10 +1,10 @@
 import org.apache.commons.math3.complex.*;
 import org.apache.commons.math3.transform.*;
 
-boolean isDown, never, circles, writeFormula;
+boolean isDown, never, circles, writeFormula, drawc;
 float size, totalDistance, averageDistance, maxTime, time;
 float[] xpoints, ypoints;
-double[] xsa, ysa, mxs, mys, pxs, pys;
+double[] xsa, ysa, mxs, mys, pxs, pys, xdxs, ydxs;
 Complex[] fxs, fys;
 FastFourierTransformer transformer;
 ArrayList<Integer> xs, ys;
@@ -13,7 +13,7 @@ PrintWriter sw;
 
 void setup() {
   noFill();
-  size(1366, 768);
+  size(1366, 768); // change this to match size that is most convenient for your screen
   background(240, 240, 240);
   frameRate(60); // change this to adjust frame rate WHILE YOU ARE DRAWING
   isDown = false;
@@ -25,7 +25,8 @@ void setup() {
   transformer = new FastFourierTransformer(DftNormalization.STANDARD);
   writeFormula = false; //change this to true if you want to have the parametric formula for what you frew in the the formula.txt file
   sw = createWriter("formula.txt");
-  maxTime = 180; // change this to adjust level of detail of CIRCLES DRAWING
+  maxTime = 360; // change this to adjust level of detail of CIRCLES DRAWING
+  drawc = true; // change this if you want to see circles or just the rotating vectors
   time = 2 * maxTime;
   currentLastX = new ArrayList<Float>();
   currentLastY = new ArrayList<Float>();
@@ -60,7 +61,17 @@ void mousePressed() {
   }
 }
 
+void keyPressed() {
+  if (key == ' ') {
+    delay(2000);
+  }
+}
 String splitDrawing() {
+  int sz = xs.size();
+  for (int i = 1; i < sz; i++) {
+    xs.add(xs.get(sz - i));
+    ys.add(ys.get(sz - i));
+  }
   xs.add(xs.get(0));
   ys.add(ys.get(0));
   line(xs.get(xs.size() - 2) + width / 2, ys.get(ys.size() - 2) + height / 2, xs.get(xs.size() - 1) + width / 2, ys.get(ys.size() - 1) + height / 2);
@@ -70,7 +81,9 @@ String splitDrawing() {
   mxs = new double[(int) size / 2];
   mys = new double[(int) size / 2];
   pxs = new double[(int) size / 2];
-  pys = new double[(int) size / 2];
+  pys = new double[(int) size / 2];  
+  xdxs = new double[(int) size / 2];
+  ydxs = new double[(int) size / 2];
   xpoints = new float[(int) size * 2];
   ypoints = new float[(int) size * 2];
   for (int i = 0; i < xs.size() - 1; i++) {
@@ -112,6 +125,9 @@ String splitDrawing() {
     maxy = Math.max(mys[i], maxy);
     pxs[i] = mxs[i] < 1e-4 ? 0 : atan2((float) fxs[i].getImaginary(), (float) fxs[i].getReal());
     pys[i] = mys[i] < 1e-4 ? 0 : atan2((float) fys[i].getImaginary(), (float) fys[i].getReal());
+  }
+  for(int i = 0; i < xdxs.length; i++) {
+    xdxs[i] = i;
   }
   for (int i = 0; i < size / 2; i++) {
     if (mxs[i] < maxx / 1000) {
@@ -157,7 +173,9 @@ void drawCircles() {
         if (index > 0) {
           stroke(120);
           line(xpoints[i - 1], ypoints[i - 1], xpoints[i], ypoints[i]);
-          ellipse(xpoints[i - 1], ypoints[i - 1], (float) mxs[index], (float) mxs[index]);
+          if (drawc) {
+            ellipse(xpoints[i - 1], ypoints[i - 1], (float) mxs[index], (float) mxs[index]);
+          }
         }
       }
     } else if (i % 4 == 1) {
@@ -166,7 +184,9 @@ void drawCircles() {
       if (index > 0) {
         stroke(120);
         line(xpoints[i - 1], ypoints[i - 1], xpoints[i], ypoints[i]);
-        ellipse(xpoints[i - 1], ypoints[i - 1], (float) mxs[index], (float) mxs[index]);
+        if (drawc) {
+          ellipse(xpoints[i - 1], ypoints[i - 1], (float) mxs[index], (float) mxs[index]);
+        }
       }
     } else if (i % 4 == 2) {         
         xpoints[i] = xpoints[i - 1] + (float) mys[index] / 2 * sin((float) (index * time * PI / maxTime - pys[index]));
@@ -174,7 +194,9 @@ void drawCircles() {
         if (index > 0) {
           stroke(120);
           line(xpoints[i - 1], ypoints[i - 1], xpoints[i], ypoints[i]);
-          ellipse(xpoints[i - 1], ypoints[i - 1], (float) mys[index], (float) mys[index]);
+          if (drawc) {
+            ellipse(xpoints[i - 1], ypoints[i - 1], (float) mys[index], (float) mys[index]);
+          }
         }
     } else {
       xpoints[i] = xpoints[i - 1] + (float) mys[index] / -2 * sin((float) (index * time * PI / maxTime - pys[index]));
@@ -182,7 +204,9 @@ void drawCircles() {
       if (index > 0) {
         stroke(120);
         line(xpoints[i - 1], ypoints[i - 1], xpoints[i], ypoints[i]);
-        ellipse(xpoints[i - 1], ypoints[i - 1], (float) mys[index], (float) mys[index]);
+        if (drawc) {
+          ellipse(xpoints[i - 1], ypoints[i - 1], (float) mys[index], (float) mys[index]);
+        }
       }
     }
   }
